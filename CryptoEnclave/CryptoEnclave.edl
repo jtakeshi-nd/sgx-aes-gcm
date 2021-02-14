@@ -13,6 +13,11 @@ enclave {
         */
         public void decryptMessage([in,size=len] char *encMessageIn, size_t len, [out,size=lenOut] char *decMessageOut, size_t lenOut);
         
+        public void send_set_to_enclave([in,size=vals_bytes]unsigned char * vals, size_t vals_bytes);
+        
+        public int enclave_intersection_empty([in,size=vals_bytes] char * vals, size_t vals_bytes, size_t num_vals);
+    };
+        
         /*
         * This function encrypts a message.
         * @param decMessageIn

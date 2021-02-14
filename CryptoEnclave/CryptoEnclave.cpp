@@ -8,6 +8,18 @@
 #define BUFLEN 2048
 static sgx_aes_gcm_128bit_key_t key = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
 
+static set<uint64_t> infected_set;
+
+void send_set_to_enclave(unsigned char * vals, size_t vals_bytes){
+  size_t num_vals = vals_bytes / sizeof(uint64_t);
+  if(vals_bytes % sizeof(uint64_t)){
+    printf("ERROR: bytes calculation off\n");
+  }	 
+  uint64_t * vals_ptr = (uint64_t *) vals;
+  infected_set = set<uint64_t>(vals_ptr, vals_ptr + num_vals);
+  return;
+}
+
 void decryptMessage(char *encMessageIn, size_t len, char *decMessageOut, size_t lenOut)
 {
 	uint8_t *encMessage = (uint8_t *) encMessageIn;
@@ -23,6 +35,17 @@ void decryptMessage(char *encMessageIn, size_t len, char *decMessageOut, size_t 
 		(sgx_aes_gcm_128bit_tag_t *) encMessage);
 	memcpy(decMessageOut, p_dst, lenOut);
         emit_debug((char *) p_dst);
+}
+
+int enclave_intersection_empty(char * encMessage, size_t encMessageLen, size_t num_64_vals){
+  vector<uint64_t> data_vals(num_vals);
+  decryptMessage(encMessage, encMessageLen, (char *) data_vals.data(), num_64_vals*sizeof(uint64_t));
+  for(size_t i = 0; i < num_vals; i++){
+    if(infected_set.find(data_vals[i]) != infected_set.end()){
+      return 0;
+    }
+  }
+  return 1;
 }
 
 void encryptMessage(char *decMessageIn, size_t len, char *encMessageOut, size_t lenOut)
