@@ -29,7 +29,7 @@ using std::string;
 #include "stdlib.h"
 #include "string.h"
 
-#define BUFLEN 2048
+#define BUFLEN 16384
 #define SGX_AESGCM_MAC_SIZE 16
 #define SGX_AESGCM_IV_SIZE 12
 
@@ -43,7 +43,6 @@ void emit_debug(const char *buf)
 
 int main(int argc, char ** argv)
 {
-	printf("Starting app...\n");
 	
 	/* Setup enclave */
 	sgx_enclave_id_t eid;

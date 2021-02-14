@@ -12,7 +12,7 @@
 using std::vector;
 using std::set;
 
-#define BUFLEN 2048
+#define BUFLEN 16384
 static sgx_aes_gcm_128bit_key_t key = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
 
 static set<uint64_t> infected_set;
@@ -42,7 +42,6 @@ void decryptMessage(char *encMessageIn, size_t len, char *decMessageOut, size_t 
 		NULL, 0,
 		(sgx_aes_gcm_128bit_tag_t *) encMessage);
 	memcpy(decMessageOut, p_dst, lenOut);
-        emit_debug((char *) p_dst);
 }
 
 int enclave_intersection_empty(char * encMessage, size_t encMessageLen, size_t num_64_vals){

@@ -1,0 +1,1 @@
+/app -i ~/contact-tracing/inputs/infected/infected_1.txt -f ~/contact-tracing/inputs/user/user_1.txt
