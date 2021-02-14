@@ -32,6 +32,7 @@ else
         SGX_COMMON_CFLAGS += -O2
 endif
 
+
 ######## CryptoTestingApp Settings ########
 
 ifneq ($(SGX_MODE), HW)
@@ -80,9 +81,11 @@ else
 endif
 Crypto_Library_Name := sgx_tcrypto
 CryptoEnclave_Cpp_Files := CryptoEnclave/CryptoEnclave.cpp
-CryptoEnclave_Include_Paths := -IInclude -ICryptoEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport
+#JST add libcxx to include paths - can't find std::set otherwise
+CryptoEnclave_Include_Paths := -IInclude -ICryptoEnclave -I$(SGX_SDK)/include -I$(SGX_SDK)/include/tlibc -I$(SGX_SDK)/include/stlport -I$(SGX_SDK)/include/libcxx
 CryptoEnclave_C_Flags := $(SGX_COMMON_CFLAGS) -nostdinc -fvisibility=hidden -fpie -fstack-protector $(CryptoEnclave_Include_Paths)
-CryptoEnclave_Cpp_Flags := $(CryptoEnclave_C_Flags) -std=c++03 -nostdinc++
+#JST change C++ version from 03 to 11
+CryptoEnclave_Cpp_Flags := $(CryptoEnclave_C_Flags) -std=c++11 -nostdinc++
 CryptoEnclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
 	-Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
 	-Wl,--start-group -lsgx_tstdc -lsgx_tcxx -l$(Crypto_Library_Name) -l$(Service_Library_Name) -Wl,--end-group \

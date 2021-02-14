@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iostream>
 #include <chrono>
+#include <getopt.h>
 
 using std::vector;
 using std::cout;
@@ -40,7 +41,7 @@ void emit_debug(const char *buf)
     printf("DEBUG: %s\n", buf);
 }
 
-int main()
+int main(int argc, char ** argv)
 {
 	printf("Starting app...\n");
 	
@@ -88,10 +89,10 @@ int main()
     infected_vals.push_back(tmp);
   }
 	
-	sgx_status_t enclave_result = send_set_to_enclave(global_eid, (unsigned char *) infected_vals.data(), infected_vals.size()*sizeof(uint64_t));
+	sgx_status_t enclave_result = send_set_to_enclave(eid, (unsigned char *) infected_vals.data(), infected_vals.size()*sizeof(uint64_t));
   if(enclave_result != SGX_SUCCESS){
     cerr << "ERROR: enclave failed!\n";
-    print_error_message(enclave_result);
+    //print_error_message(enclave_result);
     return 1;
   }
   
@@ -107,7 +108,7 @@ int main()
     while(ifs >> tmp && num_vals++ < BUFLEN/sizeof(uint64_t)){
       vals.push_back(tmp);
     }
-    char * message = (char *) tmp.data();
+    char * message = (char *) vals.data();
     size_t encMessageLen = (SGX_AESGCM_MAC_SIZE + SGX_AESGCM_IV_SIZE + (vals.size()*sizeof(uint64_t)));
     char *encMessage = (char *) malloc((encMessageLen+1)*sizeof(char));
     ret = encryptMessage(eid, message, (vals.size()*sizeof(uint64_t)), encMessage, encMessageLen);
@@ -115,7 +116,7 @@ int main()
 	  std::chrono::high_resolution_clock::time_point start, end;
     start = std::chrono::high_resolution_clock::now();
     int empty;
-	  ret = enclave_intersection_empty(global_eid, &empty, encMessage, encMessageLen, vals.size());
+	  ret = enclave_intersection_empty(eid, &empty, encMessage, encMessageLen, vals.size());
 	  end = std::chrono::high_resolution_clock::now();
 	  if(ret != SGX_SUCCESS){
       cerr << "ERROR: enclave failed in decryption/intersection!\n";
@@ -151,7 +152,7 @@ int main()
 	*/
 
 	/* Destroy the enclave */
-  sgx_destroy_enclave(global_eid);
+        sgx_destroy_enclave(eid);
 	return 0;
 }
 
